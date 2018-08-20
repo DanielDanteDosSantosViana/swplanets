@@ -1,16 +1,24 @@
-package database
+package db
 
 import (
-	env "github.com/DanielDanteDosSantosViana/swplanets/internal/platform/enviroment"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jinzhu/gorm"
+	"errors"
+	"fmt"
+
+	"gopkg.in/mgo.v2"
+
+	"github.com/DanielDanteDosSantosViana/swplanets/internal/platform/enviroment"
 )
 
-func NewSessionMysqlWriteDB() (*gorm.DB, error) {
-	db, err := gorm.Open("mysql", env.Conf.Db.MysqlWrite)
+func NewSession() (Session, error) {
+	db, err := mgo.Dial(enviroment.Conf.Db.Mongo)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(fmt.Sprintf("An error occurred while trying to open connection with database . %v", err))
 	}
-	db.SingularTable(true)
-	return db, nil
+
+	err = db.Ping()
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("An error occurred while trying to verify database connection. %v", err))
+	}
+
+	return MongoSession{db}, nil
 }

@@ -1,4 +1,4 @@
-package http
+package web
 
 import validator "gopkg.in/go-playground/validator.v9"
 
