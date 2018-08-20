@@ -1,0 +1,19 @@
+version: "2"
+services:
+  swplanets:
+    build: .
+    restart: always
+    container_name: swplanets
+    environment:
+      PORT_ENV: 8081
+      MONGO_HOST: mongodb://mongodb/swplanets
+      DB_NAME: swplanets
+    ports:
+      - "8081:8081"
+    links: [mongodb]
+    
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "9000:27017"
