@@ -25,12 +25,17 @@ type MongoCollection struct {
 	*mgo.Collection
 }
 
+func (m MongoCollection) EnsureIndex(index mgo.Index) error {
+	return m.Collection.EnsureIndex(index)
+}
+
 type Collection interface {
 	Find(query interface{}) *mgo.Query
 	Count() (n int, err error)
 	Insert(docs ...interface{}) error
 	Remove(selector interface{}) error
 	Update(selector interface{}, update interface{}) error
+	EnsureIndex(index mgo.Index) error
 }
 
 type MongoDatabase struct {

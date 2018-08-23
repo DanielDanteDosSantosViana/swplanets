@@ -11,7 +11,7 @@ type Planet struct {
 	Name        string        `json:"name" validate:"required"`
 	Climate     string        `json:"climate" validate:"required"`
 	Terrain     string        `json:"terrain" validate:"required"`
-	Appearances int           `json:"appearances,omitempty"`
-	UpdatedAt   time.Time     `json:"-"`
-	CreatedAt   time.Time     `json:"-"`
+	Appearances int           `json:"appearances"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
