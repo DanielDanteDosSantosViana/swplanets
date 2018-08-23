@@ -8,6 +8,7 @@ services:
       PORT_ENV: 8081
       MONGO_HOST: mongodb://mongodb/swplanets
       DB_NAME: swplanets
+      URL_API: https://swapi.co/api/planets?search=
     ports:
       - "8081:8081"
     links: [mongodb]
