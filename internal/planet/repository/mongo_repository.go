@@ -48,6 +48,20 @@ func (e *InvalidIdError) Error() string {
 	return e.message
 }
 
+type NotFoundError struct {
+	message string
+}
+
+func NewNotFoundError() *NotFoundError {
+	return &NotFoundError{
+		message: "not found planet",
+	}
+}
+
+func (e *NotFoundError) Error() string {
+	return e.message
+}
+
 var (
 	collection = "planets"
 )
@@ -109,6 +123,28 @@ func (m *mongoRepository) List() ([]planet.Planet, error) {
 		return planets, err
 	}
 	return planets, nil
+}
+
+func (m *mongoRepository) GetById(id string) (*planet.Planet, error) {
+	session := m.Session.Clone()
+	defer session.Close()
+	c := m.getCollection(collection)
+	planet := &planet.Planet{}
+
+	if !bson.IsObjectIdHex(id) {
+		err := NewInvalidIdError()
+		log.WithFields(log.Fields{"error": err}).Error(err.Error())
+		return planet, err
+	}
+	if err := c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(planet); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			log.WithFields(log.Fields{"error": err}).Error(err.Error())
+			return planet, NewNotFoundError()
+		}
+		log.WithFields(log.Fields{"error": err}).Error(err.Error())
+		return planet, err
+	}
+	return planet, nil
 }
 
 func (m *mongoRepository) getCollection(collectionName string) db.Collection {

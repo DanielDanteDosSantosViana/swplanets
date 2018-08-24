@@ -18,6 +18,7 @@ func AddAPI(sessiondb db.Session, api *mux.Router) *mux.Router {
 	api.HandleFunc("/planets", planetHandler.Create).Methods(http.MethodPost)
 	api.HandleFunc("/planets/{id}", planetHandler.Remove).Methods(http.MethodDelete)
 	api.HandleFunc("/planets", planetHandler.List).Methods(http.MethodGet)
+	api.HandleFunc("/planets/{id}", planetHandler.GetById).Methods(http.MethodGet)
 
 	return api
 }

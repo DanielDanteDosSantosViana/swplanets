@@ -100,3 +100,24 @@ func (p *PlanetHandler) List(w http.ResponseWriter, r *http.Request) {
 		web.Respond(w, planets, http.StatusOK)
 	}
 }
+
+func (p *PlanetHandler) GetById(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idParams := vars["id"]
+
+	if planet, err := p.repository.GetById(idParams); err != nil {
+
+		switch err.(type) {
+		case *repository.NotFoundError:
+			log.WithFields(log.Fields{"planet id": idParams}).Error(err.Error())
+			web.RespondError(w, err, http.StatusNotFound)
+		default:
+			log.WithFields(log.Fields{"id": idParams}).Error(err.Error())
+			web.RespondError(w, err, http.StatusInternalServerError)
+		}
+
+	} else {
+		web.Respond(w, planet, http.StatusOK)
+	}
+
+}
