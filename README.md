@@ -23,6 +23,12 @@ Install dependencies:
 
 ## Run
 
+Test:
+
+```sh
+  make test
+```
+
 With Golang:
 
 ```sh
@@ -43,5 +49,32 @@ Endpoints:
   * GET PLANET BY ID - /api/v1/planets/{id} (GET) 
   * GET PLANET BY NAME - /api/v1/planets?name={name} (GET)
   * LIST PLANET - /api/v1/planets (GET)
-  * REMOVE PLANET - /api/v1/planets (DELETE)
+  * REMOVE PLANET - /api/v1/planets/{id} (DELETE)
   
+  
+Payload:
+
+```json
+ {
+
+    "name":"Alderaan",
+    "climate":"temperate",
+    "terrain":"gas giant"
+  }
+```
+ Exemplo with curl:
+ 
+ 
+```sh
+curl -X POST \
+  http://localhost:8081/api/v1/planets \
+  -H 'Cache-Control: no-cache' \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"name":"Alderaan",
+	"climate":"temperate",
+	"terrain":"gas giant"
+}'
+
+```
+
