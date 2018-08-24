@@ -4,3 +4,11 @@
 
 # swplanets
 API to create planets with the quantities of appearances in Star Wars movies
+
+
+## How to Install
+
+## Update
+
+
+## Documentation and Examples
