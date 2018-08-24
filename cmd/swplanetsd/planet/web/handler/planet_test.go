@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/DanielDanteDosSantosViana/swplanets/internal/platform/client"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/DanielDanteDosSantosViana/swplanets/internal/planet"
 
@@ -151,6 +152,112 @@ func TestPlanetHandler_Create_ExternalAPIReturnBadRequest(t *testing.T) {
 				}
 				convey.So(err, convey.ShouldBeNil)
 			})
+		})
+	})
+}
+
+func TestPlanetHandler_Create_ExternalAPIReturnInternalError(t *testing.T) {
+	convey.Convey("Given an valid request", t, func() {
+		var err error
+		validPlanetString := `{"name":"Alderaan","climate":"temperate","terrain":"gas giant"}`
+		expectedResponse := `{"error":"Internal error external api"}`
+
+		body := strings.NewReader(validPlanetString)
+
+		req, _ := http.NewRequest("POST", "/api/v1/planets", body)
+		recorder := httptest.NewRecorder()
+
+		clientMock := &mocks.Client{}
+		clientMock.On("GetNumberOfAppearancesByPlanetName", mock.Anything).Return(0, client.NewExternalApiInternalError("Internal error external api"))
+
+		planetRepository := &mocks.PlanetRepository{}
+		planetRepository.On("Store", mock.Anything).Return(&planet.Planet{}, nil)
+
+		planetHandler := handler.NewPlanetHandler(planetRepository, clientMock)
+
+		r := mux.NewRouter().StrictSlash(true)
+		api := r.PathPrefix("/api/v1").Subrouter()
+		api.HandleFunc("/planets", planetHandler.Create).Methods(http.MethodPost)
+		api.ServeHTTP(recorder, req)
+
+		convey.Convey("Should return error", func() {
+			convey.Convey("Status code should be equal 502", func() {
+				convey.So(recorder.Code, convey.ShouldEqual, http.StatusBadGateway)
+			})
+			convey.Convey("Body should be equals expected ", func() {
+
+				if expectedResponse != recorder.Body.String() {
+					err = errors.New(fmt.Sprintf("handler returned not expected body. body %v expected %v", recorder.Body.String(), expectedResponse))
+				}
+				convey.So(err, convey.ShouldBeNil)
+			})
+		})
+	})
+}
+
+func TestPlanetHandler_Remove__Success(t *testing.T) {
+	convey.Convey("Given an valid request", t, func() {
+		body := strings.NewReader("")
+		id := bson.NewObjectId()
+
+		req, _ := http.NewRequest("DELETE", "/api/v1/planets/"+id.Hex(), body)
+		recorder := httptest.NewRecorder()
+
+		clientMock := &mocks.Client{}
+		clientMock.On("GetNumberOfAppearancesByPlanetName", mock.Anything).Return(1, nil)
+
+		planetRepository := &mocks.PlanetRepository{}
+		planetRepository.On("Remove", id.Hex()).Return(nil)
+
+		planetHandler := handler.NewPlanetHandler(planetRepository, clientMock)
+
+		r := mux.NewRouter().StrictSlash(true)
+		api := r.PathPrefix("/api/v1").Subrouter()
+		api.HandleFunc("/planets/{id}", planetHandler.Remove).Methods(http.MethodDelete)
+		api.ServeHTTP(recorder, req)
+
+		convey.Convey("Should not return error", func() {
+			convey.Convey("Status code should be equal 204", func() {
+				convey.So(recorder.Code, convey.ShouldEqual, http.StatusNoContent)
+			})
+		})
+	})
+}
+
+func TestPlanetHandler_Remove__InvalidID(t *testing.T) {
+	convey.Convey("Given an valid request", t, func() {
+		var err error
+		expectedReturn := `{"error":"invalid id"}`
+		body := strings.NewReader("")
+		id := "id"
+
+		req, _ := http.NewRequest("DELETE", "/api/v1/planets/"+id, body)
+		recorder := httptest.NewRecorder()
+
+		clientMock := &mocks.Client{}
+		clientMock.On("GetNumberOfAppearancesByPlanetName", mock.Anything).Return(1, nil)
+
+		planetRepository := &mocks.PlanetRepository{}
+		planetRepository.On("Remove", id).Return(repository.NewInvalidIdError())
+
+		planetHandler := handler.NewPlanetHandler(planetRepository, clientMock)
+
+		r := mux.NewRouter().StrictSlash(true)
+		api := r.PathPrefix("/api/v1").Subrouter()
+		api.HandleFunc("/planets/{id}", planetHandler.Remove).Methods(http.MethodDelete)
+		api.ServeHTTP(recorder, req)
+
+		convey.Convey("Should not return error", func() {
+			convey.Convey("Status code should be equal 400", func() {
+				convey.So(recorder.Code, convey.ShouldEqual, http.StatusBadRequest)
+			})
+		})
+		convey.Convey("Body should be equals expected", func() {
+			if expectedReturn != recorder.Body.String() {
+				err = errors.New(fmt.Sprintf("handler returned not expected body. body %v expected %v", recorder.Body.String(), expectedReturn))
+			}
+
+			convey.So(err, convey.ShouldBeNil)
 		})
 	})
 }
