@@ -92,6 +92,25 @@ func (p *PlanetHandler) Remove(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PlanetHandler) List(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+
+	if name != "" {
+		if planets, err := p.repository.GetByName(name); err != nil {
+			switch err.(type) {
+			case *repository.NotFoundError:
+				log.WithFields(log.Fields{"planet name": name}).Error(err.Error())
+				web.Respond(w, planets, http.StatusOK)
+				return
+			default:
+				log.WithFields(log.Fields{"planet name": name}).Error(err.Error())
+				web.RespondError(w, err, http.StatusInternalServerError)
+				return
+			}
+		} else {
+			web.Respond(w, planets, http.StatusOK)
+			return
+		}
+	}
 
 	if planets, err := p.repository.List(); err != nil {
 		log.Error(err.Error())

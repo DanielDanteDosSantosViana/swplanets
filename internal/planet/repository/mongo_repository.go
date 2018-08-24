@@ -147,6 +147,23 @@ func (m *mongoRepository) GetById(id string) (*planet.Planet, error) {
 	return planet, nil
 }
 
+func (m *mongoRepository) GetByName(name string) ([]planet.Planet, error) {
+	session := m.Session.Clone()
+	defer session.Close()
+	c := m.getCollection(collection)
+	planets := []planet.Planet{}
+
+	if err := c.Find(bson.M{"name": name}).All(&planets); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			log.WithFields(log.Fields{"error": err}).Error(err.Error())
+			return planets, NewNotFoundError()
+		}
+		log.WithFields(log.Fields{"error": err}).Error(err.Error())
+		return planets, err
+	}
+	return planets, nil
+}
+
 func (m *mongoRepository) getCollection(collectionName string) db.Collection {
 	return m.Session.DB(enviroment.Conf.Db.Name).C(collectionName)
 }

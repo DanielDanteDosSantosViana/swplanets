@@ -9,4 +9,5 @@ type PlanetRepository interface {
 	Remove(id string) error
 	List() ([]models.Planet, error)
 	GetById(id string) (*models.Planet, error)
+	GetByName(name string) ([]models.Planet, error)
 }
