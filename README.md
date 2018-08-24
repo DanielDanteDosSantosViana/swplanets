@@ -15,7 +15,24 @@ Requirements:
   * Dep: dependencies manager , see the Software section in the
     [dep_golang](https://github.com/golang/dep).
 
-## Update
+Install dependencies:
 
+```sh
+  dep ensure
+```
+
+## Run
+
+With Golang:
+
+```sh
+  go install /cmd/swplanetsd/main.go
+```
+
+With Docker:
+
+```sh
+  docker-compose up -d --build
+```
 
 ## Documentation and Examples
