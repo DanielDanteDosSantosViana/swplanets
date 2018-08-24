@@ -62,7 +62,7 @@ Payload:
     "terrain":"gas giant"
   }
 ```
- Exemplo with curl:
+ Example with curl:
  
  
 ```sh
