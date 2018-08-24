@@ -20,8 +20,17 @@ Install dependencies:
 ```sh
   dep ensure
 ```
-
 ## Run
+
+Enviroment:
+
+SWplanets use mongodb to save date and get data about star wars movies in external API (https://swapi.co/api/).
+Database connections and external api's url are defined with environments variables:
+
+* PORT_ENV: api port
+* DB_NAME: name of database
+* MONGO_HOST: url connection database
+* URL_API: database  connection  url 
 
 Test:
 
