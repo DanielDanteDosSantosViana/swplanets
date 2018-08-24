@@ -32,7 +32,7 @@ Test:
 Golang:
 
 ```sh
-  go run /cmd/swplanetsd/main.go
+  make run
 ```
 
 Docker:
