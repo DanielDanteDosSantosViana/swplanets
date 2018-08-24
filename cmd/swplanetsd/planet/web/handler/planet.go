@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/DanielDanteDosSantosViana/swplanets/internal/planet/repository"
 	"github.com/DanielDanteDosSantosViana/swplanets/internal/platform/client"
 	"github.com/DanielDanteDosSantosViana/swplanets/internal/platform/web"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,7 +47,7 @@ func (p *PlanetHandler) Create(w http.ResponseWriter, r *http.Request) {
 			return
 		default:
 			log.WithFields(log.Fields{"planet": planet}).Error("Internal error when get data about planet in external api")
-			web.RespondError(w, errors.New("Internal error when get data about planet in external api"), http.StatusBadGateway)
+			web.RespondError(w, err, http.StatusBadGateway)
 			return
 		}
 	}
@@ -70,4 +70,23 @@ func (p *PlanetHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (p *PlanetHandler) Remove(w http.ResponseWriter, r *http.Request) {}
+func (p *PlanetHandler) Remove(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idParams := vars["id"]
+
+	if err := p.repository.Remove(idParams); err != nil {
+
+		switch err.(type) {
+		case *repository.InvalidIdError:
+			log.WithFields(log.Fields{"id": idParams}).Error(err.Error())
+			web.RespondError(w, err, http.StatusBadRequest)
+		default:
+			log.WithFields(log.Fields{"id": idParams}).Error(err.Error())
+			web.RespondError(w, err, http.StatusInternalServerError)
+		}
+
+	} else {
+		web.Respond(w, nil, http.StatusNoContent)
+	}
+
+}

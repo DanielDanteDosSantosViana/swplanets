@@ -33,6 +33,19 @@ func (e *DuplicationKeyError) Error() string {
 	return e.message
 }
 
+type InvalidIdError struct {
+	message string
+}
+
+func NewInvalidIdError() *InvalidIdError {
+	return &InvalidIdError{
+		message: "invalid id",
+	}
+}
+func (e *InvalidIdError) Error() string {
+	return e.message
+}
+
 var (
 	collection = "planets"
 )
@@ -56,6 +69,7 @@ func (m *mongoRepository) Store(planet *models.Planet) (*models.Planet, error) {
 
 	if err != nil {
 		if strings.Contains(err.Error(), "E11000") {
+			log.WithFields(log.Fields{"error": err}).Error(err.Error())
 			return planet, NewDuplicationKeyError("Duplication key 'name' ")
 		}
 
@@ -63,6 +77,24 @@ func (m *mongoRepository) Store(planet *models.Planet) (*models.Planet, error) {
 	}
 
 	return planet, err
+}
+
+func (m *mongoRepository) Remove(id string) error {
+	session := m.Session.Clone()
+	defer session.Close()
+	c := m.getCollection(collection)
+
+	if !bson.IsObjectIdHex(id) {
+		err := NewInvalidIdError()
+		log.WithFields(log.Fields{"error": err}).Error(err.Error())
+		return err
+	}
+
+	if err := c.Remove(bson.M{"_id": bson.ObjectIdHex(id)}); err != nil {
+		log.WithFields(log.Fields{"error": err}).Error(err.Error())
+		return err
+	}
+	return nil
 }
 
 func (m *mongoRepository) getCollection(collectionName string) db.Collection {
