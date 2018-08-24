@@ -90,3 +90,13 @@ func (p *PlanetHandler) Remove(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func (p *PlanetHandler) List(w http.ResponseWriter, r *http.Request) {
+
+	if planets, err := p.repository.List(); err != nil {
+		log.Error(err.Error())
+		web.RespondError(w, err, http.StatusInternalServerError)
+	} else {
+		web.Respond(w, planets, http.StatusOK)
+	}
+}

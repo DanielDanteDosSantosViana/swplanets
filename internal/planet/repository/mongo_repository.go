@@ -4,6 +4,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/DanielDanteDosSantosViana/swplanets/internal/planet"
+
 	models "github.com/DanielDanteDosSantosViana/swplanets/internal/planet"
 	"github.com/DanielDanteDosSantosViana/swplanets/internal/platform/db"
 	"github.com/DanielDanteDosSantosViana/swplanets/internal/platform/enviroment"
@@ -95,6 +97,18 @@ func (m *mongoRepository) Remove(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (m *mongoRepository) List() ([]planet.Planet, error) {
+	session := m.Session.Clone()
+	defer session.Close()
+	c := m.getCollection(collection)
+	planets := []planet.Planet{}
+	if err := c.Find(nil).All(&planets); err != nil {
+		log.WithFields(log.Fields{"error": err}).Error(err.Error())
+		return planets, err
+	}
+	return planets, nil
 }
 
 func (m *mongoRepository) getCollection(collectionName string) db.Collection {
