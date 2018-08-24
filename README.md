@@ -29,13 +29,13 @@ Test:
   make test
 ```
 
-With Golang:
+Golang:
 
 ```sh
   go run /cmd/swplanetsd/main.go
 ```
 
-With Docker:
+Docker:
 
 ```sh
   docker-compose up -d --build
