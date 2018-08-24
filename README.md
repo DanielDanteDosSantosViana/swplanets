@@ -26,7 +26,7 @@ Install dependencies:
 With Golang:
 
 ```sh
-  go install /cmd/swplanetsd/main.go
+  go run /cmd/swplanetsd/main.go
 ```
 
 With Docker:
@@ -36,3 +36,12 @@ With Docker:
 ```
 
 ## Documentation and Examples
+
+Endpoints:
+
+  * CREATE PLANET - /api/v1/planets (POST) 
+  * GET PLANET BY ID - /api/v1/planets/{id} (GET) 
+  * GET PLANET BY NAME - /api/v1/planets?name={name} (GET)
+  * LIST PLANET - /api/v1/planets (GET)
+  * REMOVE PLANET - /api/v1/planets (DELETE)
+  
